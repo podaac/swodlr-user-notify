@@ -122,7 +122,7 @@ resource "aws_ssm_parameter" "ses_region" {
 resource "aws_ssm_parameter" "tea_mapping" {
   for_each = var.tea_mapping
 
-  name = "${local.service_path}/tea-mapping/${each.key}"
+  name = "${local.service_path}/tea_mapping/${each.key}"
   type = "String"
   value = each.value
 }
