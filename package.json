@@ -22,7 +22,7 @@
   "dependencies": {
     "@aws-sdk/client-sesv2": "^3.385.0",
     "@aws-sdk/client-ssm": "^3.369.0",
-    "@podaac/swodlr-common": "^0.0.12",
+    "@podaac/swodlr-common": "^0.0.13",
     "ajv": "^8.12.0",
     "handlebars": "^4.7.7",
     "pg": "^8.11.1",
