@@ -1,5 +1,9 @@
 .DS_Store
 
+# Environment
+.env
+.envrc
+
 # Builds
 dist/
 build/
