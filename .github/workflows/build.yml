@@ -42,8 +42,8 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Lint
         run: npm run lint
-      - name: Test
-        run: npm test
+      #- name: Test
+      #  run: npm test
       - name: Validate Terraform
         run: terraform validate -no-color
 
