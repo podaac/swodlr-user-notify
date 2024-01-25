@@ -163,6 +163,8 @@ jobs:
           TF_VAR_session_encryption_key: ${{ secrets.SESSION_ENCRYPTION_KEY }}
           TF_VAR_ingest_aws_account: ${{ secrets.INGEST_AWS_ACCOUNT }}
           TF_VAR_ingest_aws_role: ${{ secrets.INGEST_AWS_ROLE }}
+          TF_VAR_ses_credentials: ${{ secrets.SES_CREDENTIALS }}
+          TF_VAR_ses_region: ${{ secrets.SES_REGION }}
         run: |
           VENUE=$(echo "${{ vars.TF_VENUE }}" | tr '[:upper:]' '[:lower:]')
           source bin/config.sh $VENUE
