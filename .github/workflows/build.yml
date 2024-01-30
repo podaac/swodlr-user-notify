@@ -42,8 +42,8 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Lint
         run: npm run lint
-      #- name: Test
-      #  run: npm test
+      - name: Test
+        run: npm test
       - name: Validate Terraform
         run: terraform validate -no-color
 
@@ -156,7 +156,6 @@ jobs:
         id: terraform-deploy
         working-directory: terraform/
         env:
-          AWS_DEFAULT_REGION: us-west-2
           TF_VAR_edl_base_url: ${{ secrets.EDL_BASE_URL }}
           TF_VAR_edl_client_id: ${{ secrets.EDL_CLIENT_ID }}
           TF_VAR_edl_client_secret: ${{ secrets.EDL_CLIENT_SECRET }}
