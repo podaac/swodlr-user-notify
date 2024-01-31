@@ -30,12 +30,12 @@ jobs:
     name: lint and test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
           registry-url: 'https://npm.pkg.github.com'
-      - uses: hashicorp/setup-terraform@v2.0.3
+      - uses: hashicorp/setup-terraform@v3
       - name: Install package
         run: npm ci
         env:
@@ -51,7 +51,8 @@ jobs:
     name: build
     runs-on: ubuntu-latest
     outputs:
-      deploy_env: ${{ steps.npm-build.outputs.deploy_env }}
+      deploy_env: ${{ steps.set-env.outputs.deploy_env }}
+      github_sha: ${{ steps.update-sha.outputs.github_sha }}
     needs: lint_n_test
     steps:
       #   -- Setup --
@@ -61,20 +62,19 @@ jobs:
         with:
           app_id: ${{ secrets.CICD_APP_ID }}
           private_key: ${{ secrets.CICD_APP_PRIVATE_KEY }}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository }}
           token: ${{ steps.podaac-cicd.outputs.token }}
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
       - name: Install bumpver
-        run: pip3 install bumpver
-      - uses: actions/setup-node@v3
+        run: pip3 install bumpver ; bumpver init
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
           registry-url: 'https://npm.pkg.github.com'
-      - uses: hashicorp/setup-terraform@v2.0.3
+      - uses: hashicorp/setup-terraform@v3
       - name: Setup git user
         run: |
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -106,20 +106,27 @@ jobs:
       - name: Release version
         if: github.ref == 'refs/heads/main' && github.event_name != 'workflow_dispatch'
         run: bumpver update --patch --tag final
-
+      - name: Set the target environment to ${{ env.TARGET_ENV }}
+        id: set-env
+        run: |
+          echo "deploy_env=${{ env.TARGET_ENV }}" >> $GITHUB_OUTPUT
       #   -- Build --
       - name: Build lambda package
         id: npm-build
         run: |
           npm run build
-          echo "deploy_env=${{ env.TARGET_ENV }}" >> $GITHUB_OUTPUT
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload packaged zip
-        uses: actions/upload-artifact@v3.1.0
+        uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/*.zip
+      - name: Set github SHA for deployment
+        id: update-sha
+        run: |
+          SHA=$(git rev-parse HEAD)
+          echo "github_sha=${SHA}" >> $GITHUB_OUTPUT
 
   deploy:
     name: Deploy
@@ -142,15 +149,15 @@ jobs:
           aws-access-key-id: ${{ secrets[vars.AWS_ACCESS_KEY_ID_SECRET_NAME] }}
           aws-secret-access-key: ${{ secrets[vars.AWS_SECRET_ACCESS_KEY_SECRET_NAME] }}
           mask-aws-account-id: true
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository }}
-      - uses: hashicorp/setup-terraform@v2
+          ref: ${{ needs.build.outputs.github_sha }}
+      - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
           terraform_wrapper: false
       - name: Retrieve artifact from build step
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist/
