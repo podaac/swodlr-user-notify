@@ -1,14 +1,12 @@
 [bumpver]
 current_version = "0.0.2-alpha1"
 version_pattern = "MAJOR.MINOR.PATCH[-TAGNUM]"
+pre_commit_hook = "scripts/npm-version.sh"
 commit = true
 tag = true
 push = true
 
 [bumpver.file_patterns]
-"pyproject.toml" = [
-    'version = "{version}"'
-]
 "bumpver.toml" = [
     'current_version = "{version}"',
 ]
