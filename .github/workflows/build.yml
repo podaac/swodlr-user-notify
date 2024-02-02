@@ -33,7 +33,7 @@ jobs:
     name: lint and test
     runs-on: ubuntu-latest
     steps:
-      - name: Initial checkout
+      - name: Initial checkout ${{ github.ref }}
         if: github.event.inputs.commit == ''
         uses: actions/checkout@v4
       - name: Adjust to proper commit hash ${{ github.event.inputs.commit }}
@@ -72,8 +72,16 @@ jobs:
         with:
           app_id: ${{ secrets.CICD_APP_ID }}
           private_key: ${{ secrets.CICD_APP_PRIVATE_KEY }}
-      - uses: actions/checkout@v4
+      - name: Initial checkout ${{ github.ref }}
+        if: github.event.inputs.commit == ''
+        uses: actions/checkout@v4
         with:
+          token: ${{ steps.podaac-cicd.outputs.token }}
+      - name: Adjust to proper commit hash ${{ github.event.inputs.commit }}
+        if: github.event.inputs.commit != ''
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.commit }}
           token: ${{ steps.podaac-cicd.outputs.token }}
       - uses: actions/setup-python@v4
         with:
@@ -159,7 +167,8 @@ jobs:
           aws-access-key-id: ${{ secrets[vars.AWS_ACCESS_KEY_ID_SECRET_NAME] }}
           aws-secret-access-key: ${{ secrets[vars.AWS_SECRET_ACCESS_KEY_SECRET_NAME] }}
           mask-aws-account-id: true
-      - uses: actions/checkout@v4
+      - name: Checkout repository for Deployment ${{ needs.build.outputs.github_sha }}
+        uses: actions/checkout@v4
         with:
           ref: ${{ needs.build.outputs.github_sha }}
       - uses: hashicorp/setup-terraform@v3
