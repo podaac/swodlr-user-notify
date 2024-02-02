@@ -20,7 +20,10 @@ on:
         options:
           - SIT
           - UAT
-
+      commit:
+        type: string
+        description: Custom commit hash
+        
 permissions:
   contents: read
   packages: read
