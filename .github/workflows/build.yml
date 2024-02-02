@@ -200,7 +200,6 @@ jobs:
         run: |
           VERSION=$(cat bumpver.toml|grep current_version |grep -v {version} |sed -E "s/current_version = //"|sed -E "s/\"//g")
           echo "SUBMODULE_VERSION=$VERSION">>$GITHUB_ENV
-
       - name: Send notifications to slack
         uses: slackapi/slack-github-action@v1.25.0
         env:
