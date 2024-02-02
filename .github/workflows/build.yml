@@ -208,5 +208,5 @@ jobs:
         with:
           payload: |
             {
-              "message": "swodlr-user-notify [version ${{ env.SUBMODULE_VERSION }}] has been deployed to the ${{ needs.build.outputs.deploy_env }} environment"
+              "message": "${{} github.repository }} [version ${{ env.SUBMODULE_VERSION }}] has been deployed to the ${{ needs.build.outputs.deploy_env }} environment"
             }
