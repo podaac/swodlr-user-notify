@@ -30,7 +30,14 @@ jobs:
     name: lint and test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Initial checkout
+        if: github.event.inputs.commit == ''
+        uses: actions/checkout@v4
+      - name: Adjust to proper commit hash ${{ github.event.inputs.commit }}
+        if: github.event.inputs.commit != ''
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.commit }}
       - uses: actions/setup-node@v4
         with:
           node-version: 18
