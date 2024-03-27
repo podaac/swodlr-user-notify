@@ -1,5 +1,5 @@
 [bumpver]
-current_version = "0.0.2-alpha9"
+current_version = "0.0.4-alpha0"
 version_pattern = "MAJOR.MINOR.PATCH[-TAGNUM]"
 pre_commit_hook = "scripts/npm-version.sh"
 commit = true
