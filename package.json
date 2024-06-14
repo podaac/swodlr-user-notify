@@ -1,6 +1,6 @@
 {
   "name": "swodlr-user-notify",
-  "version": "1.0.0-rc2",
+  "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "type": "module",
