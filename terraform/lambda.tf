@@ -107,10 +107,10 @@ resource "aws_ssm_parameter" "log_level" {
   value = var.log_level
 }
 
-resource "aws_ssm_parameter" "ses_credentials" {
-  name = "${local.service_path}/ses_credentials"
-  type = "SecureString"
-  value = var.ses_credentials
+resource "aws_ssm_parameter" "ses_sender_arn" {
+  name = "${local.service_path}/ses_sender_arn"
+  type = "String"
+  value = var.ses_sender_arn
 }
 
 resource "aws_ssm_parameter" "ses_region" {
@@ -119,10 +119,28 @@ resource "aws_ssm_parameter" "ses_region" {
   value = var.ses_region
 }
 
+resource "aws_ssm_parameter" "ses_configuration_set" {
+  name = "${local.service_path}/ses_config_set_name"
+  type = "String"
+  value = aws_ses_configuration_set.default.name
+}
+
 resource "aws_ssm_parameter" "tea_mapping" {
   for_each = var.tea_mapping
 
   name = "${local.service_path}/tea_mapping/${each.key}"
   type = "String"
   value = each.value
+}
+
+# -- SES --
+resource "aws_ses_configuration_set" "default" {
+  provider = aws.ses_region
+
+  name = "${local.service_prefix}-default"
+  reputation_metrics_enabled = true
+
+  delivery_options {
+    tls_policy = "Require"
+  }
 }
