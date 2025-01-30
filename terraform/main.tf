@@ -25,6 +25,20 @@ provider "aws" {
   }
 }
 
+// Used for SES config set
+provider "aws" {
+  region = var.ses_region
+  alias = "ses_region"
+
+  default_tags {
+    tags = local.default_tags
+  }
+
+  ignore_tags {
+    key_prefixes = ["gsfc-ngap"]
+  }
+}
+
 data "aws_caller_identity" "current" {}
 
 data "local_file" "package_json" {

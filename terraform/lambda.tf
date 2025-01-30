@@ -135,6 +135,8 @@ resource "aws_ssm_parameter" "tea_mapping" {
 
 # -- SES --
 resource "aws_ses_configuration_set" "default" {
+  provider = aws.ses_region
+
   name = "${local.service_prefix}-default"
   reputation_metrics_enabled = true
 
