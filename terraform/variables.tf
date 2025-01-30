@@ -26,7 +26,7 @@ variable "log_level" {
     default = "INFO"
 }
 
-variable "ses_credentials" {
+variable "ses_sender_arn" {
     type = string
 }
 
