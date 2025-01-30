@@ -27,7 +27,7 @@ lookup is performed in two stages:
 ## Notes
 
 `swodlr-user-notify` utilizes AWS Simple Email Service to send out emails to
-its users. Due to the way that NGAP, the platform we run SWODLR on, has
-configured itself we aren't able to utilize SES from the NGAP account we run
-this service on. Instead we utilize a separate credential for a different
-account which is configured for use with SES.
+its users. Due to the way that CCS, the organization that oversees NGAP (the
+platform SWODLR runs on), we utilize a "FromEmailAddressIdentityArn" from an
+externally managed account which authorizes sending from the no-reply@nasa.gov
+address.
