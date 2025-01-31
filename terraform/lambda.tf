@@ -15,9 +15,9 @@ resource "aws_lambda_function" "main" {
 }
 
 # -- IAM --
-resource "aws_iam_policy" "ssm_parameters_read" {
+resource "aws_iam_role_policy" "allow_ssm_parameters_read" {
   name_prefix = "SSMParametersReadOnlyAccess"
-  path = "${local.service_path}/"
+  role = aws_iam_role.lambda.name
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -34,16 +34,56 @@ resource "aws_iam_policy" "ssm_parameters_read" {
   })
 }
 
+resource "aws_iam_role_policy" "allow_ses_send_email" {
+  name_prefix = "SESSendEmail"
+  role = aws_iam_role.lambda.name
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid = ""
+      Action = ["ses:SendEmail"]
+      Effect   = "Allow"
+      Resource = [
+        var.ses_sender_arn,
+        aws_ses_configuration_set.default.arn
+      ]
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "allow_sqs_dequeue" {
+  name_prefix  = "AllowSQSDequeue"
+  role = aws_iam_role.lambda.name
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid = ""
+      Action = [
+        "sqs:ReceiveMessage",
+        "sqs:DeleteMessage",
+        "sqs:GetQueueAttributes"
+      ]
+      Effect   = "Allow"
+      Resource = data.aws_sqs_queue.user_notify.arn
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda-ngap_app_instance_minimal" {
+  role = aws_iam_role.lambda.name
+  policy_arn = "arn:aws:iam::${local.account_id}:policy/NGAPProtAppInstanceMinimalPolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "lambda-aws_lambda_vpc_access_exec" {
+  role = aws_iam_role.lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
 resource "aws_iam_role" "lambda" {
   name_prefix = "main"
   path = "${local.service_path}/"
 
   permissions_boundary = "arn:aws:iam::${local.account_id}:policy/NGAPShRoleBoundary"
-  managed_policy_arns = [
-    "arn:aws:iam::${local.account_id}:policy/NGAPProtAppInstanceMinimalPolicy",
-    "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
-    aws_iam_policy.ssm_parameters_read.arn
-  ]
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -55,25 +95,6 @@ resource "aws_iam_role" "lambda" {
       }
     }]
   })
-
-  inline_policy {
-    name = "AsyncUpdatePolicy"
-    policy = jsonencode({
-      Version = "2012-10-17"
-      Statement = [
-        {
-          Sid = ""
-          Action = [
-            "sqs:ReceiveMessage",
-            "sqs:DeleteMessage",
-            "sqs:GetQueueAttributes"
-          ]
-          Effect   = "Allow"
-          Resource = data.aws_sqs_queue.user_notify.arn
-        }
-      ]
-    })
-  }
 }
 
 # -- SSM Parameters --
